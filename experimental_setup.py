@@ -46,5 +46,7 @@ def get_setup(idx):
         angle_corr = np.arcsin(offset_x / offset_y)
         rotation_matrix = tf.rotation_matrix_z(angle_corr)
         setup.orientation_sp_in_ref = np.matmul(rotation_matrix, setup.orientation_sp_in_ref)
-        
+
+    setup.coordinates_cam_in_flange = [325, 0,  427]
+    setup.angles_cam_in_flange = [82, 0, -90]
     return setup
