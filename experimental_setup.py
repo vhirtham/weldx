@@ -35,7 +35,7 @@ def get_setup(idx):
         setup.groove_angle_start = 60
         setup.groove_angle_end = 40
         setup.orientation_sp_in_ref = tf.rotation_matrix_z(np.pi / 2)
-        setup.coordinates_sp_in_ref = [-18.9, -10, -8]
+        setup.coordinates_sp_in_ref = [-18.9, -15, -8]
         setup.coordinates_temp_1_in_base = [-8.299, 84.298, -0.019]
         setup.coordinates_temp_2_in_base = [7.307, 85.235, -0.042]
         setup.coordinates_temp_3_in_base = [-9.331, 233.894, -0.014]
