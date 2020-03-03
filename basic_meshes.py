@@ -40,19 +40,23 @@ def create_unit_cylinder_mesh(num_segments_radial, num_segments_axial):
 
 def create_cone_mesh(num_segments_radial):
     num_segments_radial = np.clip(num_segments_radial, 3, None)
-    num_points = num_segments_radial + 1
-    num_triangles = num_segments_radial
+    num_points = num_segments_radial + 2
+    num_triangles = num_segments_radial * 2
     delta_angle = 2 * np.pi / num_segments_radial
     
     points = np.ndarray((3, num_points), float)
     triangles = np.ndarray((num_triangles, 3), int)
     z = 0
     
-    points[:,0] = [0, 0, 1]
+    points[:, 0] = [0, 0, 1]
     for i in range(num_segments_radial):        
         angle = i * delta_angle
         x = np.sin(angle)
         y = np.cos(angle)
         points[:, i+1] = [x, y, z]
-        triangles[i] = [i+1,0,(i+1) % (num_triangles)+1]
+        p_0 = i+1
+        p_1 = (i+1) % (num_triangles / 2)+1
+        triangles[i] = [p_0, 0, p_1]
+        triangles[int(i+num_triangles / 2)] = [p_0,p_1, num_points-1]
+    points[:, -1] = [0, 0, 0]            
     return [points,triangles]   
