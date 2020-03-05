@@ -8,10 +8,8 @@ def get_setup(idx):
     if idx == 2:
         setup.system_data_index = 17519
         setup.measurement_data_id = 18208
-        setup.scan_data_layer_0_scan_idx = 17507
-        setup.scan_data_layer_0_tcp_idx = 17518
-        setup.scan_data_layer_1_scan_idx = 17513
-        setup.scan_data_layer_1_tcp_idx = 17519
+        setup.scan_data_scan_idx = [17507, 17513]
+        setup.scan_data_tcp_idx = [17518, 17519]
         setup.origin_ref = ut.to_float_array([67.311, 1055.137, -132.694])
         setup.offset_ox_ref = ut.to_float_array([157.345, 1054.486, -132.949])
         setup.offset_oy_ref = ut.to_float_array([69.149, 1366.014, -131.962])
@@ -25,10 +23,8 @@ def get_setup(idx):
     elif idx == 5:        
         setup.system_data_index = 18204
         setup.measurement_data_id = 18202
-        setup.scan_data_layer_0_scan_idx = 18189
-        setup.scan_data_layer_0_tcp_idx = 18203
-        setup.scan_data_layer_1_scan_idx = 18194
-        setup.scan_data_layer_1_tcp_idx = 18204
+        setup.scan_data_scan_idx = [18189, 18194]
+        setup.scan_data_tcp_idx = [18203, 18204]
         setup.origin_ref = ut.to_float_array([67.311, 1055.137, -132.694])
         setup.offset_ox_ref = ut.to_float_array([157.345, 1054.486, -132.949])
         setup.offset_oy_ref = ut.to_float_array([69.149, 1366.014, -131.962])
