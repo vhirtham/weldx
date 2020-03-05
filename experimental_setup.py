@@ -17,7 +17,7 @@ def get_setup(idx):
         setup.offset_oy_ref = ut.to_float_array([69.149, 1366.014, -131.962])
         setup.groove_angle_start = 40
         setup.groove_angle_end = 60
-        setup.orientation_sp_in_ref = tf.rotation_matrix_z(np.pi / 2)
+        setup.orientation_sp_in_ref = np.matmul(tf.rotation_matrix_y(np.pi / 2),tf.rotation_matrix_z(np.pi / 2))
         setup.coordinates_sp_in_ref = [-20, -10, -8]
         setup.coordinates_temp_1_in_base = [-9.96, 89.47, -0.489]
         setup.coordinates_temp_2_in_base = [10.92, 89.97, -0.27]
@@ -34,7 +34,7 @@ def get_setup(idx):
         setup.offset_oy_ref = ut.to_float_array([69.149, 1366.014, -131.962])
         setup.groove_angle_start = 60
         setup.groove_angle_end = 40
-        setup.orientation_sp_in_ref = tf.rotation_matrix_z(np.pi / 2)
+        setup.orientation_sp_in_ref = np.matmul(tf.rotation_matrix_y(np.pi / 2),tf.rotation_matrix_z(np.pi / 2))
         setup.coordinates_sp_in_ref = [-18.9, -15, -8]
         setup.coordinates_temp_1_in_base = [-8.299, 84.298, -0.019]
         setup.coordinates_temp_2_in_base = [7.307, 85.235, -0.042]
