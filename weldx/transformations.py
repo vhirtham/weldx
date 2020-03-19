@@ -3,6 +3,7 @@
 import weldx.utility as ut
 import numpy as np
 import math
+import networkx as nx
 from scipy.spatial.transform import Rotation as Rot
 
 
@@ -37,6 +38,18 @@ def rotation_matrix_z(angle):
     :return: Rotation matrix
     """
     return Rot.from_euler("z", angle).as_matrix()
+
+
+def scale_matrix(scale_x, scale_y, scale_z):
+    """
+    Return a scaling matrix.
+
+    :param scale_x: Scaling factor in x direction
+    :param scale_y: Scaling factor in y direction
+    :param scale_z: Scaling factor in z direction
+    :return: Scaling matrix
+    """
+    return np.array([[scale_x, 0, 0], [0, scale_y, 0], [0, 0, scale_z]], dtype=float)
 
 
 def normalize(vec):
@@ -174,7 +187,7 @@ def vector_points_to_left_of_vector(vector, vector_reference):
     return int(np.sign(np.linalg.det([vector_reference, vector])))
 
 
-# cartesian coordinate system class -------------------------------------------
+# local coordinate system class --------------------------------------------------------
 
 
 class LocalCoordinateSystem:
@@ -421,3 +434,63 @@ class LocalCoordinateSystem:
         :return: Location of the coordinate system.
         """
         return self._location
+
+    def invert(self):
+        """
+        Get a local coordinate system defining the parent in the child system.
+
+        :return: Inverted coordinate system.
+        """
+        basis = self.basis.transpose()
+        origin = np.matmul(basis, -self.origin)
+        return LocalCoordinateSystem(basis, origin)
+
+
+# coordinate system manager class ------------------------------------------------------
+
+
+class CoordinateSystemManager:
+    """Manages multiple coordinate systems and the transformations between them."""
+
+    def __init__(self, base_coordinate_system_name="base"):
+        self._graph = nx.DiGraph()
+        self._graph.add_node(base_coordinate_system_name)
+
+    def _add_edges(self, node_from, node_to, lcs, calculated):
+        self._graph.add_edge(
+            node_from, node_to, lcs=lcs, calculated=calculated,
+        )
+        self._graph.add_edge(
+            node_to, node_from, lcs=lcs.invert(), calculated=calculated,
+        )
+
+    def add_coordinate_system(self, name, parent_system_name, local_coordinate_system):
+        if not isinstance(local_coordinate_system, LocalCoordinateSystem):
+            raise Exception(
+                "'local_coordinate_system' must be an instance of "
+                + "weldx.transformations.LocalCoordinateSystem"
+            )
+        if parent_system_name not in self._graph.nodes:
+            raise Exception("Invalid parent system")
+        self._graph.add_node(name)
+        self._add_edges(parent_system_name, name, local_coordinate_system, False)
+
+    def get_local_coordinate_system(self, cs_child, cs_parent):
+        if cs_child not in self.graph.nodes:
+            raise Exception("Invalid child system")
+        if cs_parent not in self.graph.nodes:
+            raise Exception("Invalid parent system")
+
+        path = nx.shortest_path(self.graph, cs_child, cs_parent)
+        lcs = self.graph.edges[path[0], path[1]]["lcs"]
+        length_path = len(path) - 1
+        if length_path > 1:
+            print("calculate transformation")
+            for i in np.arange(1, length_path):
+                lcs = lcs + self.graph.edges[path[i], path[i + 1]]["lcs"]
+            self._add_edges(path[0], path[-1], lcs, True)
+        return lcs
+
+    @property
+    def graph(self):
+        return self._graph
