@@ -1,6 +1,7 @@
 """Contains package internal utility functions."""
 
 import math
+from collections.abc import Iterable
 from typing import Any, Dict, List, Union
 
 import numpy as np
@@ -290,7 +291,9 @@ def xr_interp_like(
     if isinstance(da2, (xr.DataArray, xr.Dataset)):
         sel_coords = da2.coords  # remember original interpolation coordinates
     else:  # assume da2 to be dict-like
-        sel_coords = da2
+        sel_coords = {
+            k: (v if isinstance(v, Iterable) else [v]) for k, v in da2.items()
+        }
 
     if interp_coords is not None:
         sel_coords = {k: v for k, v in sel_coords.items() if k in interp_coords}
