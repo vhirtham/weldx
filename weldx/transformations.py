@@ -4,6 +4,7 @@ import collections.abc as cl
 import math
 from copy import deepcopy
 from dataclasses import dataclass
+from scipy.spatial.transform import Rotation
 from typing import Hashable, List, Union
 
 import networkx as nx
@@ -213,7 +214,7 @@ class LocalCoordinateSystem:
 
     def __init__(
         self,
-        orientation: Union[xr.DataArray, np.ndarray, List[List]] = None,
+        orientation: Union[xr.DataArray, np.ndarray, List[List], Rotation] = None,
         coordinates: Union[xr.DataArray, np.ndarray, List] = None,
         time: pd.DatetimeIndex = None,
         construction_checks: bool = True,
@@ -248,6 +249,9 @@ class LocalCoordinateSystem:
                         "pd.Timestamp])"
                     )
                     raise err
+
+            if isinstance(orientation, Rotation):
+                orientation = orientation.as_matrix()
 
             if not isinstance(orientation, xr.DataArray):
                 if not isinstance(orientation, np.ndarray):
@@ -407,7 +411,7 @@ class LocalCoordinateSystem:
         :return: Local coordinate system
         :return:
         """
-        orientation = Rot.from_euler(sequence, angles, degrees).as_matrix()
+        orientation = Rot.from_euler(sequence, angles, degrees)
         return cls(orientation, coordinates=coordinates, time=time)
 
     @classmethod
