@@ -875,7 +875,8 @@ class Profile:
         if ax is None:  # pragma: no cover
             _, ax = plt.subplots()
         ax.grid(grid)
-        ax.axis(axis)
+        if not (ax.name == "3d"):  # cannot set equal axis on 3d plots (yet)
+            ax.axis(axis)
         ax.set_title(title)
         ax.plot(raster_data[0], raster_data[1], line_style)
 
