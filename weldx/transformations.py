@@ -2,15 +2,14 @@
 
 import collections.abc as cl
 import math
-import pint
 from copy import deepcopy
 from dataclasses import dataclass
-from scipy.spatial.transform import Rotation
 from typing import Hashable, List, Union
 
 import networkx as nx
 import numpy as np
 import pandas as pd
+import pint
 import xarray as xr
 from scipy.spatial.transform import Rotation as Rot
 
@@ -312,7 +311,7 @@ class LocalCoordinateSystem:
 
     def __init__(
         self,
-        orientation: Union[xr.DataArray, np.ndarray, List[List], Rotation] = None,
+        orientation: Union[xr.DataArray, np.ndarray, List[List], Rot] = None,
         coordinates: Union[xr.DataArray, np.ndarray, List] = None,
         time: Union[pd.DatetimeIndex, pd.TimedeltaIndex, pint.Quantity] = None,
         time_ref: pd.Timestamp = None,
@@ -328,6 +327,7 @@ class LocalCoordinateSystem:
             corresponding orientation matrix is equal to the normalized orientation
             vectors. So each orthogonal transformation matrix can also be
             provided as orientation.
+            Passing a scipy.spatial.transform.Rotation object is also supported.
         coordinates :
             Coordinates of the origin
         time :
@@ -343,6 +343,9 @@ class LocalCoordinateSystem:
             Cartesian coordinate system
 
         """
+        if isinstance(orientation, Rot):
+            orientation = orientation.as_matrix()
+
         if construction_checks:
             if orientation is None:
                 orientation = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -367,7 +370,7 @@ class LocalCoordinateSystem:
                     )
                     raise err
 
-            if isinstance(orientation, Rotation):
+            if isinstance(orientation, Rot):
                 orientation = orientation.as_matrix()
 
             if not isinstance(orientation, xr.DataArray):
@@ -858,6 +861,39 @@ class LocalCoordinateSystem:
             trans_a=True,
         )
         return LocalCoordinateSystem(orientation, coordinates)
+
+    def as_rotation(self) -> Rot:  # pragma: no cover
+        """Get a scipy.Rotation object from the coordinate system orientation.
+
+        Returns
+        -------
+        scipy.spatial.transform.Rotation
+            Scipy rotation object representing the orientation.
+
+        """
+        return Rot.from_matrix(self.orientation.values)
+
+    def as_euler(
+        self, seq: str = "xyz", degrees: bool = False
+    ) -> np.ndarray:  # pragma: no cover
+        """Return Euler angle representation of the coordinate system orientation.
+
+        Parameters
+        ----------
+        seq :
+            Euler rotation sequence as described in
+            https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.as_euler.html
+        degrees :
+            Returned angles are in degrees if True, else they are in radians.
+            Default is False.
+
+        Returns
+        -------
+        numpy.ndarray
+            Array of euler angles.
+
+        """
+        return self.as_rotation().as_euler(seq=seq, degrees=degrees)
 
 
 # coordinate system manager class ------------------------------------------------------
