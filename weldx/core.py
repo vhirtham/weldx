@@ -234,10 +234,20 @@ class MathematicalExpression:
 # TimeSeries ---------------------------------------------------------------------------
 
 
+class GenericSeries:
+    """Generic weldx series object."""
+
+    _valid_interpolations = ["step", "linear"]
+    _coord_dimensionality = "s"
+    _coord_name = "time"
+
+
 class TimeSeries:
     """Describes the behaviour of a quantity in time."""
 
     _valid_interpolations = ["step", "linear"]
+    _coord_dimensionality = "s"
+    _coord_name = "time"
 
     def __init__(
         self,
@@ -286,7 +296,9 @@ class TimeSeries:
                 )
 
             dax = xr.DataArray(data=data, attrs={"interpolation": interpolation},)
-            self._data = dax.rename({"dim_0": "time"}).assign_coords({"time": time})
+            self._data = dax.rename({"dim_0": self._coord_name}).assign_coords(
+                {self._coord_name: time}
+            )
 
         elif isinstance(data, MathematicalExpression):
 
@@ -297,7 +309,9 @@ class TimeSeries:
                 )
             time_var_name = data.get_variable_names()[0]
             try:
-                eval_data = data.evaluate(**{time_var_name: Q_(1, "second")})
+                eval_data = data.evaluate(
+                    **{time_var_name: Q_(1, self._coord_dimensionality)}
+                )
                 self._units = eval_data.units
                 if isinstance(eval_data.magnitude, np.ndarray):
                     self._shape = eval_data.magnitude.shape
@@ -306,7 +320,7 @@ class TimeSeries:
             except pint.errors.DimensionalityError:
                 raise Exception(
                     "Expression can not be evaluated with "
-                    '"weldx.Quantity(1, "seconds")"'
+                    f'"weldx.Quantity(1, {self._coord_dimensionality})"'
                     ". Ensure that every parameter posses the correct unit."
                 )
 
@@ -314,8 +328,8 @@ class TimeSeries:
             self._time_var_name = time_var_name
 
             try:
-                self.interp_time(Q_([1, 2], "second"))
-                self.interp_time(Q_([1, 2, 3], "second"))
+                self.interp_time(Q_([1, 2], self._coord_dimensionality))
+                self.interp_time(Q_([1, 2, 3], self._coord_dimensionality))
             except Exception as e:
                 raise Exception(
                     "The expression can not be evaluated with arrays of time deltas. "
@@ -356,7 +370,7 @@ class TimeSeries:
 
     def __repr__(self):
         """Give __repr__ output."""
-        representation = "<TimeSeries>"
+        representation = f"<{self.__class__.__name__}>"
         if isinstance(self._data, xr.DataArray):
             if self._data.shape[0] == 1:
                 representation += f"\nConstant value:\n\t{self.data.magnitude[0]}\n"
@@ -435,7 +449,7 @@ class TimeSeries:
         return None
 
     def interp_time(
-        self, time: Union[pd.TimedeltaIndex, pint.Quantity], time_unit: str = "s"
+        self, time: Union[pd.TimedeltaIndex, pint.Quantity], time_unit: str = "s",
     ) -> xr.DataArray:
         """Interpolate the TimeSeries in time.
 
@@ -472,16 +486,18 @@ class TimeSeries:
             if self._data.attrs["interpolation"] == "linear" or self.shape[0] == 1:
                 return ut.xr_interp_like(
                     self._data,
-                    {"time": time},
+                    {self._coord_name: time},
                     assume_sorted=False,
                     broadcast_missing=False,
                 )
 
-            dax = self._data.reindex({"time": time}, method="ffill")
+            dax = self._data.reindex({self._coord_name: time}, method="ffill")
             return dax.fillna(self._data[0])
 
         # Transform time to both formats
-        if isinstance(time, pint.Quantity) and time.check(UREG.get_dimensionality("s")):
+        if isinstance(time, pint.Quantity) and time.check(
+            UREG.get_dimensionality(self._coord_dimensionality)
+        ):
             time_q = time
             time_pd = ut.to_pandas_time_index(time)
         elif isinstance(time, pd.TimedeltaIndex):
@@ -504,7 +520,9 @@ class TimeSeries:
             data = data * np.array([1])
 
         dax = xr.DataArray(data=data)  # don't know exact dimensions so far
-        return dax.rename({"dim_0": "time"}).assign_coords({"time": time_pd})
+        return dax.rename({"dim_0": self._coord_name}).assign_coords(
+            {self._coord_name: time_pd}
+        )
 
     @property
     def shape(self) -> Tuple:
