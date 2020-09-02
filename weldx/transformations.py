@@ -658,7 +658,7 @@ class LocalCoordinateSystem:
             Local coordinate system
 
         """
-        orientation = Rot.from_euler(sequence, angles, degrees)
+        orientation = WXRotation.from_euler(sequence, angles, degrees)
         return cls(orientation, coordinates=coordinates, time=time)
 
     @classmethod
