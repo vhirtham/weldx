@@ -7,6 +7,46 @@ from weldx.constants import WELDX_QUANTITY as Q_
 from weldx.transformations import WXRotation
 
 
+def _build_full_seq(seq_str: str) -> str:
+    """Expand incomplete euler angle sequence to full 3 axis"""
+    if not len(seq_str) == 3:
+        if all([c in "xyz" for c in seq_str]):
+            seq_str = seq_str + "".join([c for c in "xyz" if c not in seq_str])
+        elif all([c in "XYZ" for c in seq_str]):
+            seq_str = seq_str + "".join([c for c in "XYZ" if c not in seq_str])
+        else:  # pragma: no cover
+            raise ValueError("Mix of intrinsic and extrinsic euler angles.")
+    return seq_str
+
+
+def __rot_str__(self: Rotation):
+    """Custom str format for Rotation objects."""
+    if hasattr(self, "wx_meta"):
+        if self.wx_meta["constructor"] == "from_quat":
+            fmt = "quat"
+            values = self.as_quat()
+        if self.wx_meta["constructor"] == "from_matrix":
+            fmt = "matrix"
+            values = self.as_matrix()
+        if self.wx_meta["constructor"] == "from_matrix":
+            fmt = "matrix"
+            values = self.as_matrix()
+        if self.wx_meta["constructor"] == "from_euler":
+            seq = self.wx_meta["seq"]
+            degrees = self.wx_meta["degrees"]
+            fmt = f'euler "{seq}"'
+            if degrees:
+                fmt = fmt + " / deg"
+            values = self.as_euler(_build_full_seq(seq), degrees)
+            values = np.squeeze(values[..., : len(seq)])
+        return f"WXRotation ({fmt})\n{str(values)}"
+    else:
+        return str(self)
+
+
+Rotation.__str__ = __rot_str__
+
+
 class WXRotationTypeASDF(WeldxType):
     """Serialization class for the 'Scipy.Rotation' type"""
 
@@ -48,14 +88,7 @@ class WXRotationTypeASDF(WeldxType):
         elif node.wx_meta["constructor"] == "from_rotvec":
             tree["rotvec"] = node.as_rotvec()
         elif node.wx_meta["constructor"] == "from_euler":
-            seq_str = node.wx_meta["seq"]
-            if not len(seq_str) == 3:
-                if all([c in "xyz" for c in seq_str]):
-                    seq_str = seq_str + "".join([c for c in "xyz" if c not in seq_str])
-                elif all([c in "XYZ" for c in seq_str]):
-                    seq_str = seq_str + "".join([c for c in "XYZ" if c not in seq_str])
-                else:  # pragma: no cover
-                    raise ValueError("Mix of intrinsic and extrinsic euler angles.")
+            seq_str = _build_full_seq(node.wx_meta["seq"])
 
             angles = node.as_euler(seq_str, degrees=node.wx_meta["degrees"])
             angles = np.squeeze(angles[..., : len(node.wx_meta["seq"])])
