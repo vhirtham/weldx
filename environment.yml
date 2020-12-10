@@ -47,5 +47,5 @@ dependencies:
   # pip packages
   - pip
   - pip:
-    - git+https://github.com/asdf-format/asdf
+    - git+https://github.com/kmacdonald-stsci/asdf.git@inline_literal_bit_limit
     - git+https://github.com/CagtayFabry/sphinx-asdf.git@sphinx-weldx
