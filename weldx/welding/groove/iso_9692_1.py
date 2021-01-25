@@ -1195,7 +1195,6 @@ class FFGroove(IsoBaseGroove):
     t_1: pint.Quantity
     t_2: pint.Quantity = None
     alpha: pint.Quantity = None
-    # ["1.12", "1.13", "2.12", "3.1.1", "3.1.2", "3.1.3", "4.1.1", "4.1.2", "4.1.3"]
     code_number: str = None
     b: pint.Quantity = None
     e: pint.Quantity = None
@@ -1208,6 +1207,18 @@ class FFGroove(IsoBaseGroove):
         e="special_depth",
         code_number="code_number",
     )
+
+    _code_numbers = [
+        "1.12",
+        "1.13",
+        "2.12",
+        "3.1.1",
+        "3.1.2",
+        "3.1.3",
+        "4.1.1",
+        "4.1.2",
+        "4.1.3",
+    ]
 
     def to_profile(self, width_default: pint.Quantity = Q_(5, "mm")) -> geo.Profile:
         """Calculate a Profile.
