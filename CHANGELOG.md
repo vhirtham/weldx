@@ -1,9 +1,61 @@
 # Release Notes
 
-## 0.2.2 (unreleased)
+## 0.3.0 (unreleased)
+### added
+- add `weldx.transformations.CoordinateSystemManager.relabel` function [[#219]](https://github.com/BAMWelDX/weldx/pull/219)
+
+### ASDF
+- Add possibility to store meta data and content of an external file in an ASDF file [[#215]](https://github.com/BAMWelDX/weldx/pull/215)
+  - Python class: `weldx.asdf.ExternalFile`
+  - Schema: `core/file-1.0.0.yaml`
+- Added support for serializing generic metadata and userdata attributes for weldx classes. [[#209]](https://github.com/BAMWelDX/weldx/pull/209)
+  - the provisional attribute names are `wx_metadata` and `wx_user`
+- `None` values are removed from the asdf tree for all `weldx` classes. [[#212]](https://github.com/BAMWelDX/weldx/pull/212)
+
+### changes
+- pass variable names as tuple to `sympy.lambdify` in `MathematicalExpression` to prevent sympy deprecation [[#214]](https://github.com/BAMWelDX/weldx/pull/214)
+- set `conda-forge` as primary channel in `environment.yaml` and `build_env.yaml` [[#214]](https://github.com/BAMWelDX/weldx/pull/214)
+- set minimum Python version to 3.7 [[#220]](https://github.com/BAMWelDX/weldx/pull/220)
+- `geometry.Profile.rasterize` can return list of rasterized shapes instead of flat ndarray (with setting `stack=False`) [[#223]](https://github.com/BAMWelDX/weldx/pull/223)
+- `geometry.Profile.plot` plots individual line objects for each shape (instead of a single line object) [[#223]](https://github.com/BAMWelDX/weldx/pull/223)
+- remove jinja templates and related code [[#228]](https://github.com/BAMWelDX/weldx/pull/228)
+
+### fixes
+- don't inline time dependent `LCS.coordinates` [[#222]](https://github.com/BAMWelDX/weldx/pull/222)
+- fix "datetime64" passing for "timedelta64" in `xr_check_coords` [[#221]](https://github.com/BAMWelDX/weldx/pull/221)
+- fix `time_ref_restore` not working correctly if no `time_ref` was set [[#221]](https://github.com/BAMWelDX/weldx/pull/221)
+- fix deprecated signature in `WXRotation` [[#224]](https://github.com/BAMWelDX/weldx/pull/224)
+
+### dependencies
+- Add [PyFilesystem](https://docs.pyfilesystem.org/en/latest/)(`fs`) as new dependency
+- restrict `scipy<1.6` pending [ASDF #916](https://github.com/asdf-format/asdf/issues/916) [[#224]](https://github.com/BAMWelDX/weldx/pull/224)
+
+
+## 0.2.2 (30.11.2020)
 ### added
 - Added `weldx.utility.ureg_check_class` class decorator to enable `pint` dimensionality checks with `@dataclass`. [[#179]](https://github.com/BAMWelDX/weldx/pull/179)
 - Made coordinates and orientations optional for LCS schema. Missing values are interpreted as unity translation/rotation. An empty LCS object represents a unity transformation step. [[#177]](https://github.com/BAMWelDX/weldx/pull/177)
+- added `weldx.utility.lcs_coords_from_ts` function [[#199]](https://github.com/BAMWelDX/weldx/pull/199)
+- add a tutorial with advanced use case for combining groove interpolation with different TCP movements and distance calculations [[#199]](https://github.com/BAMWelDX/weldx/pull/199)
+
+### changes
+- refactor welding groove classes [[#181]](https://github.com/BAMWelDX/weldx/pull/181)
+  - refactor groove codebase to make use of subclasses and classnames for more generic functions
+  - add `_meta` attribute to subclasses that map class attributes (dataclass parameters) to common names
+  - rework `get_groove` to make use of new class layout and parse function arguments
+- create `weldx.welding` module (contains GMAW processes and groove definitions) [[#181]](https://github.com/BAMWelDX/weldx/pull/181)
+- move `GmawProcessTypeAsdf` to `asdf.tags` folder [[#181]](https://github.com/BAMWelDX/weldx/pull/181)
+- reorder module imports in `weldx.__init__` [[#181]](https://github.com/BAMWelDX/weldx/pull/181)
+- support timedelta dtypes in ASDF `data_array/variable` [[#191]](https://github.com/BAMWelDX/weldx/pull/191)
+- add `set_axes_equal` option to some geometry plot functions (now defaults to `False`) [[#199]](https://github.com/BAMWelDX/weldx/pull/199)
+- make `utility.sine` public function [[#199]](https://github.com/BAMWelDX/weldx/pull/199)
+- switch to setuptools_scm versioning and move package metadata to setup.cfg [[#206]](https://github.com/BAMWelDX/weldx/pull/206)
+
+### ASDF
+- refactor ISO 9692-1 groove schema definitions and classes [[#181]](https://github.com/BAMWelDX/weldx/pull/181)
+  - move base schema definitions in file `terms-1.0.0.yaml` to `weldx/groove`
+  - split old schema into multiple files (1 per groove type) and create folder `iso_9692_1_2013_12`
+
 
 ### changes
 - refactor welding groove classes [[#181]](https://github.com/BAMWelDX/weldx/pull/181)

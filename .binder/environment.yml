@@ -6,14 +6,13 @@ dependencies:
   - python=3.7
   - numpy>=1.18
   - pandas>=1.0
-  - scipy>=1.4
+  - scipy<1.6
   - sympy>=1.6
   - xarray>=0.15
   - pint>=0.11
   - bottleneck
   - asdf>=2.7
   - openpyxl
-  - jinja2
   # graph packages
   - networkx
   # Code quality
