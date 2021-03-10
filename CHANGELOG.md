@@ -58,6 +58,7 @@
 - Add [k3d](https://github.com/K3D-tools/K3D-jupyter) as new dependency
 - restrict `scipy<1.6`
   pending [ASDF #916](https://github.com/asdf-format/asdf/issues/916) [[#224]](https://github.com/BAMWelDX/weldx/pull/224)
+- Add [meshio](https://pypi.org/project/meshio/) as new dependency [#265](https://github.com/BAMWelDX/weldx/pull/265)
 
 ## 0.2.2 (30.11.2020)
 
